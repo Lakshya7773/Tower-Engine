@@ -721,6 +721,7 @@
     }
     .maplibregl-popup-tip { border-top-color: #111827 !important; }
   </style>
+  <link rel="stylesheet" href="/static/enterprise-intelligence.css" />
 </head>
 <body>
 <div class="app-shell" id="appShell">
@@ -744,27 +745,31 @@
         </button>
       </div>
 
-      <div class="rail-group-label">Workbenches</div>
+      <div class="rail-group-label">Intelligence</div>
       <nav class="rail-nav" role="tablist">
-        <button type="button" class="rail-btn active" id="navOverview" onclick="switchWorkspace('overview')">
+        <button type="button" class="rail-btn active" id="navCommand" onclick="switchWorkspace('command')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="rail-text">Command Center</span>
+        </button>
+        <button type="button" class="rail-btn" id="navOverview" onclick="switchWorkspace('overview')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-          <span class="rail-text">Spatial &amp; RF Twin</span>
+          <span class="rail-text">Spatial Intelligence</span>
         </button>
         <button type="button" class="rail-btn" id="navFinancial" onclick="switchWorkspace('financial')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          <span class="rail-text">McKinsey Ledgers</span>
+          <span class="rail-text">Financial Terminal</span>
         </button>
         <button type="button" class="rail-btn" id="navEngineering" onclick="switchWorkspace('engineering')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span class="rail-text">Engineering, ESG &amp; RoW</span>
+          <span class="rail-text">Engineering Intelligence</span>
         </button>
         <button type="button" class="rail-btn" id="navAudit" onclick="switchWorkspace('audit')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          <span class="rail-text">SOA &amp; Evidence Audit</span>
+          <span class="rail-text">Evidence &amp; Compliance</span>
         </button>
         <button type="button" class="rail-btn" id="navBatch" onclick="switchWorkspace('batch')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-          <span class="rail-text">Batch RFP Triage</span>
+          <span class="rail-text">Portfolio Screening</span>
         </button>
       </nav>
     </div>
@@ -822,6 +827,23 @@
 
     <!-- PRIMARY STAGE -->
     <main class="stage">
+      <section id="viewCommand" class="stage-scroll command-center">
+        <div class="cc-heading"><div><div class="cc-eyebrow">TOWER ENGINE / INTELLIGENCE OVERVIEW</div><h2>Command Center</h2><p>Decision snapshot for the currently assessed infrastructure site.</p></div><div class="cc-heading-actions"><span class="cc-live-dot"></span><span id="ccDataState">Waiting for site analysis</span><button type="button" class="btn btn-cyan" onclick="runSingleAnalysis()">Refresh assessment</button></div></div>
+        <div class="cc-sitebar"><div><span class="cc-label">SELECTED SITE</span><strong id="ccSiteId">--</strong></div><div><span class="cc-label">REGION</span><strong id="ccRegion">--</strong></div><div><span class="cc-label">ASSET TYPOLOGY</span><strong id="ccTypology">--</strong></div><div><span class="cc-label">COORDINATES</span><strong class="mono" id="ccCoords">--</strong></div><button type="button" class="btn btn-ghost btn-sm" onclick="switchWorkspace('overview')">Open spatial workspace ↗</button></div>
+        <div class="cc-kpis">
+          <article class="cc-kpi cc-kpi-verdict"><div class="cc-kpi-top"><span>FEASIBILITY VERDICT</span><span class="cc-kpi-mark">01</span></div><strong id="ccVerdict">--</strong><small id="ccVerdictNote">Awaiting analysis</small></article>
+          <article class="cc-kpi"><div class="cc-kpi-top"><span>OVERALL SCORE</span><span class="cc-kpi-mark">02</span></div><strong id="ccScore">--</strong><small>Assessment score / 100</small></article>
+          <article class="cc-kpi"><div class="cc-kpi-top"><span>OPTIMAL PIN SHIFT</span><span class="cc-kpi-mark">03</span></div><strong id="ccShift">--</strong><small>Recommended pin displacement</small></article>
+          <article class="cc-kpi"><div class="cc-kpi-top"><span>CAPEX SAVING</span><span class="cc-kpi-mark">04</span></div><strong id="ccSaving">--</strong><small>Ring optimizer estimate</small></article>
+          <article class="cc-kpi"><div class="cc-kpi-top"><span>ANNUAL OPEX</span><span class="cc-kpi-mark">05</span></div><strong id="ccOpex">--</strong><small>Current financial model</small></article>
+        </div>
+        <div class="cc-main-grid">
+          <article class="cc-panel"><div class="cc-panel-head"><div><span class="cc-eyebrow">01 / GEOSPATIAL</span><h3>Spatial intelligence</h3></div><button class="btn btn-ghost btn-sm" onclick="switchWorkspace('overview')">Explore map ↗</button></div><div class="cc-spatial-body"><div class="cc-spatial-glyph" aria-hidden="true"><svg viewBox="0 0 240 150" role="presentation"><path d="M10 30 L60 12 108 32 158 12 228 35 M10 75 L58 58 110 78 165 56 228 78 M10 122 L60 102 112 122 165 101 228 124 M60 12 L58 58 60 102 60 140 M110 32 L110 78 112 122 M165 12 L165 56 165 101 165 140" fill="none" stroke="currentColor" stroke-opacity=".24"/><circle cx="110" cy="78" r="38" fill="none" stroke="#83aaa5" stroke-opacity=".65" stroke-dasharray="4 4"/><circle cx="110" cy="78" r="22" fill="none" stroke="#d5a45f"/><circle cx="110" cy="78" r="5" fill="#82a88b"/><path d="M110 78 L174 42" stroke="#d5a45f" stroke-width="1.5"/><circle cx="174" cy="42" r="4" fill="#d5a45f"/></svg></div><div class="cc-spatial-stats"><div><span>Ground elevation</span><strong id="ccElevation">--</strong></div><div><span>Terrain slope</span><strong id="ccSlope">--</strong></div><div><span>Nearest tower</span><strong id="ccNearestTower">--</strong></div><div><span>Nearest BharatNet OFC</span><strong id="ccOfc">--</strong></div></div></div></article>
+          <article class="cc-panel"><div class="cc-panel-head"><div><span class="cc-eyebrow">02 / ENGINEERING</span><h3>Assessment health</h3></div><button class="btn btn-ghost btn-sm" onclick="switchWorkspace('engineering')">Inspect ↗</button></div><div class="cc-engine-list" id="ccEngineList"><div class="cc-empty">Run an assessment to populate engine status.</div></div></article>
+          <article class="cc-panel"><div class="cc-panel-head"><div><span class="cc-eyebrow">03 / FIELD OPERATIONS</span><h3>Verification priorities</h3></div><button class="btn btn-ghost btn-sm" onclick="switchWorkspace('audit')">Open checklist ↗</button></div><div class="cc-priority-summary"><strong id="ccCritical">--</strong><span>Critical field actions</span><strong id="ccFieldHours">--</strong><span>Estimated field hours</span></div><div id="ccPriorityList" class="cc-priority-list"><div class="cc-empty">Field verification actions appear after analysis.</div></div></article>
+          <article class="cc-panel"><div class="cc-panel-head"><div><span class="cc-eyebrow">04 / INVESTMENT INTELLIGENCE</span><h3>Financial snapshot</h3></div><button class="btn btn-ghost btn-sm" onclick="switchWorkspace('financial')">Open terminal ↗</button></div><div class="cc-fin-grid"><div><span>Estimated CAPEX</span><strong id="ccCapex">--</strong></div><div><span>Monthly OPEX</span><strong id="ccMonthlyOpex">--</strong></div><div><span>Solar PV capacity</span><strong id="ccSolar">--</strong></div><div><span>Annual CO₂ offset</span><strong id="ccCarbon">--</strong></div></div><div class="cc-fin-note">Figures reflect the active site assessment and current model assumptions. Edit assumptions in Financial Terminal.</div></article>
+        </div>
+      </section>
       <!-- VIEW 1: MAP-FIRST 65% / 35% SPATIAL & RF DIGITAL TWIN -->
       <section id="viewOverview" class="spatial-split">
         <!-- LEFT/CENTER 65%: FULL-HEIGHT 3D TERRAIN MAP -->
@@ -1214,6 +1236,7 @@ function toggleRail() {
 
 function switchWorkspace(view) {
   const views = {
+    command: ['viewCommand', 'navCommand'],
     overview: ['viewOverview', 'navOverview'],
     financial: ['viewFinancial', 'navFinancial'],
     engineering: ['viewEngineering', 'navEngineering'],
@@ -1879,6 +1902,47 @@ function renderSingleReport(r) {
         </div>
       </details>`;
   }).join('');
+  renderCommandCenter(r);
+}
+
+function renderCommandCenter(r) {
+  const engines = r.engines || {}, spatial = engines.spatial_base?.data || {};
+  const metrics = spatial.site_metrics || {}, infra = spatial.infrastructure || {};
+  const optimizer = engines.ring_optimizer?.data || {}, deltas = optimizer.deltas || {};
+  const recommended = optimizer.recommended_pin || {}, finance = engines.financial_boq?.data || {};
+  const capex = finance.capex_boq_lakh || {}, opex = finance.opex_monthly_inr || {};
+  const energy = engines.energy_esg?.data || {}, structural = engines.typology_and_structural?.data || {};
+  const soa = engines.soa_checklist?.data || {};
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value ?? '--'; };
+  const moneyLakh = n => Number.isFinite(Number(n)) ? '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:2}) + ' L' : '--';
+  const moneyRupees = n => Number.isFinite(Number(n)) ? '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:0}) : '--';
+  const capexTotal = Object.values(capex).reduce((sum, value) => sum + (Number(value) || 0), 0);
+  set('ccDataState','Assessment updated'); set('ccSiteId',r.site_id || document.getElementById('inSiteId').value);
+  set('ccRegion',metrics.state || 'Region not reported'); set('ccTypology',structural.asset_typology || 'Pending classification');
+  set('ccCoords',Number(r.input_lat).toFixed(4)+', '+Number(r.input_lon).toFixed(4));
+  set('ccVerdict',r.verdict || '--'); set('ccScore',Number(r.overall_score).toFixed(1)+' / 100');
+  set('ccShift',Number(deltas.meters_shifted || 0).toFixed(0)+' m'); set('ccSaving',moneyLakh(deltas.capex_saved_lakh));
+  set('ccOpex',moneyLakh(opex.annual_opex_lakh));
+  set('ccElevation',recommended.elevation_m != null ? Number(recommended.elevation_m).toFixed(1)+' m' : 'N/A');
+  set('ccSlope',recommended.slope_pct != null ? Number(recommended.slope_pct).toFixed(1)+'%' : 'N/A');
+  set('ccNearestTower',infra.nearest_tower_m != null ? Number(infra.nearest_tower_m).toFixed(0)+' m' : 'N/A');
+  set('ccOfc',infra.nearest_bharatnet_ofc_m != null ? Number(infra.nearest_bharatnet_ofc_m).toFixed(0)+' m' : 'N/A');
+  set('ccCritical',Number(soa.critical_count || 0)); set('ccFieldHours',Number(soa.estimated_field_hours || 0)+' h');
+  set('ccCapex',moneyLakh(capexTotal)); set('ccMonthlyOpex',moneyRupees(opex.total_monthly_opex_inr));
+  set('ccSolar',Number(energy.recommended_solar_pv_kwp || 0).toFixed(2)+' kWp');
+  set('ccCarbon',Number(energy.co2_offset_tons_per_year || 0).toFixed(1)+' t / yr');
+  const engineList=document.getElementById('ccEngineList');
+  if(engineList) engineList.innerHTML=Object.entries(engines).map(([key,engine])=>{
+    const status=String(engine.status || 'INFO').toUpperCase(), label=engine.engine_name || key.replaceAll('_',' ');
+    const cls=status==='PASS'?'pass':(status==='HOLD'||status==='FAIL'?'critical':'conditional');
+    return '<div class="cc-engine-row"><span class="cc-status-dot '+cls+'"></span><span class="cc-engine-name">'+escapeHtml(label)+'</span><span class="cc-engine-score">'+escapeHtml(status)+'</span></div>';
+  }).join('') || '<div class="cc-empty">No engine results returned.</div>';
+  const priorities=Array.isArray(soa.items)?soa.items:[];
+  const priorityList=document.getElementById('ccPriorityList');
+  if(priorityList) priorityList.innerHTML=priorities.slice(0,4).map(item=>{
+    const critical=item.priority==='CRITICAL';
+    return '<div class="cc-priority-row"><span class="cc-priority-tag '+(critical?'critical':'normal')+'">'+escapeHtml(item.priority)+'</span><span>'+escapeHtml(item.action_title)+'</span></div>';
+  }).join('') || '<div class="cc-empty">No field actions were returned.</div>';
 }
 
 function selectCfoScenario(scenKey) {
@@ -2162,6 +2226,7 @@ function downloadSampleTemplate() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  switchWorkspace('command');
   const gsEl = document.getElementById('gsCode');
   if (gsEl) gsEl.textContent = gsEl.textContent.replace('__ORIGIN__', window.location.origin);
   initMap();
