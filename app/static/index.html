@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2030 Enterprise Tower Feasibility Cockpit</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #111827;
+      --panel-2: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.45;
+    }
+    header {
+      background: #0f172a; border-bottom: 1px solid var(--border);
+      padding: 14px 24px; display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .brand span { color: var(--accent); }
+    .tabs { display: flex; gap: 8px; }
+    .tab-btn {
+      background: var(--panel-2); color: var(--muted); border: 1px solid var(--border);
+      padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;
+    }
+    .tab-btn.active { background: var(--accent); color: #0b1120; border-color: var(--accent); }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .hidden { display: none !important; }
+    .controls {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px; align-items: end; margin-bottom: 18px;
+    }
+    label { display: block; font-size: 11px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    input, select {
+      width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 10px; font-size: 14px;
+    }
+    .btn {
+      background: var(--accent); color: #0b1120; border: none; border-radius: 8px;
+      padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary {
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    }
+    .btn-green { background: var(--green); color: #052e16; }
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px; margin-bottom: 18px;
+    }
+    .kpi {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+    }
+    .kpi .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .kpi .val { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .two-col { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; margin-bottom: 18px; }
+    @media (max-width: 980px) { .two-col { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    }
+    .card h3 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
+    #map { height: 360px; border-radius: 8px; border: 1px solid var(--border); }
+    .badge {
+      display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    }
+    .b-green { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.4); }
+    .b-amber { background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
+    .b-red { background: rgba(239,68,68,0.18); color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+    .b-blue { background: rgba(56,189,248,0.18); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.4); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border-bottom: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    .dropzone {
+      border: 2px dashed var(--border); border-radius: 12px; padding: 32px; text-align: center;
+      background: var(--panel); cursor: pointer; transition: border-color 0.2s;
+    }
+    .dropzone.dragover { border-color: var(--accent); background: rgba(56,189,248,0.06); }
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+    .status-msg { font-size: 13px; color: var(--accent); margin-left: 8px; }
+    .boq-input { width: 100px; padding: 4px 6px; font-size: 13px; text-align: right; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">2030 Enterprise <span>Tower Feasibility</span> Cockpit</div>
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-single-btn" onclick="switchTab('single')">Single-Pin Engineering &amp; CFO</button>
+    <button class="tab-btn" id="tab-batch-btn" onclick="switchTab('batch')">Batch RFP Triage</button>
+    <a class="tab-btn" href="/gradio" target="_blank" style="text-decoration:none;">Gradio API</a>
+  </div>
+</header>
+
+<div class="container">
+  <!-- SINGLE PIN VIEW -->
+  <section id="view-single">
+    <div class="controls">
+      <div><label>Site ID</label><input id="in-site-id" value="RAJ-KOTA-001" /></div>
+      <div><label>Latitude</label><input id="in-lat" type="number" step="0.0001" value="24.9277" /></div>
+      <div><label>Longitude</label><input id="in-lon" type="number" step="0.0001" value="75.8986" /></div>
+      <div><label>Search Ring (m)</label><input id="in-ring" type="number" value="500" /></div>
+      <div><label>Grid Points</label>
+        <select id="in-grid"><option value="25" selected>25-Point (5x5)</option><option value="9">9-Point (3x3)</option></select>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" id="btn-analyze" onclick="runSingleAnalysis()">Analyze Site</button>
+        <button class="btn btn-green" id="btn-pdf" onclick="downloadDossier('pdf')" disabled>PDF Dossier</button>
+      </div>
+    </div>
+    <div id="single-status" class="status-msg" style="margin-bottom:10px;"></div>
+
+    <div class="kpi-grid" id="single-kpis">
+      <div class="kpi"><div class="lbl">2030 Asset Typology</div><div class="val" id="k-typology">—</div><div class="sub" id="k-state">State: —</div></div>
+      <div class="kpi"><div class="lbl">Ring Shift &amp; Capex Saved</div><div class="val" id="k-shift">—</div><div class="sub" id="k-saved">Capex Saved: —</div></div>
+      <div class="kpi"><div class="lbl">1.5x Tenancy 10Y IRR</div><div class="val" id="k-irr">—</div><div class="sub" id="k-capex">Total Capex: —</div></div>
+      <div class="kpi"><div class="lbl">Zero-Diesel CO₂ Offset</div><div class="val" id="k-co2">—</div><div class="sub" id="k-solar">Solar + LiFePO4: —</div></div>
+      <div class="kpi"><div class="lbl">Statutory &amp; RoW Gate</div><div class="val" id="k-stat">—</div><div class="sub" id="k-beyond">Beyond-Tenancy: —</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>Search-Ring Map (Input vs. Optimal Pin &amp; LoS Targets)</h3>
+        <div id="map"></div>
+      </div>
+      <div class="card">
+        <h3>DEM 30-Point Elevation &amp; 60% Fresnel LoS Profile</h3>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <select id="los-link-select" onchange="renderLosChart()" style="max-width:280px;"></select>
+          <span id="los-badges"></span>
+        </div>
+        <canvas id="los-chart" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>2030 Readiness, Statutory RoW &amp; Beyond-Tenancy</h3>
+        <div id="readiness-panel" style="font-size:13px;color:var(--muted);">Run analysis to inspect 2030 readiness gates.</div>
+      </div>
+      <div class="card">
+        <h3>Editable CFO Capex / Opex BOQ &amp; Multi-Tenant IRR</h3>
+        <div id="boq-panel" style="font-size:13px;color:var(--muted);">Run analysis to inspect &amp; edit financial BOQ.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATCH RFP TRIAGE VIEW -->
+  <section id="view-batch" class="hidden">
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('batch-file').click()">
+      <input type="file" id="batch-file" accept=".csv,.xlsx,.xlsm" class="hidden" onchange="handleBatchFile(this.files[0])" />
+      <div style="font-size:16px;font-weight:700;">Drag &amp; Drop Search-Ring CSV or Excel (.xlsx) Here</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;">Up to 500 search rings (columns: site_id, lat, lon, radius_m)</div>
+      <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;">
+        <button class="btn btn-secondary" type="button" onclick="event.stopPropagation();downloadSampleCsv()">Download 10-Row Sample CSV</button>
+        <button class="btn btn-green" type="button" id="btn-export-xlsx" disabled onclick="event.stopPropagation();exportBatchXlsx()">Export Ranked Excel (.xlsx)</button>
+      </div>
+    </div>
+    <div id="batch-status" class="status-msg" style="margin-top:10px;"></div>
+
+    <div class="kpi-grid" id="batch-kpis" style="margin-top:14px;">
+      <div class="kpi"><div class="lbl">Total Rings</div><div class="val" id="b-total">0</div></div>
+      <div class="kpi"><div class="lbl">Green (Ready)</div><div class="val" style="color:var(--green);" id="b-green">0</div></div>
+      <div class="kpi"><div class="lbl">Amber (Conditional)</div><div class="val" style="color:var(--amber);" id="b-amber">0</div></div>
+      <div class="kpi"><div class="lbl">Red (Hold)</div><div class="val" style="color:var(--red);" id="b-red">0</div></div>
+      <div class="kpi"><div class="lbl">Avg 1.5x IRR</div><div class="val" id="b-irr">—</div></div>
+      <div class="kpi"><div class="lbl">Total Capex</div><div class="val" id="b-capex">—</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="tab-btn active" onclick="filterBatch('ALL', this)">All</button>
+      <button class="tab-btn" onclick="filterBatch('Green', this)">Green</button>
+      <button class="tab-btn" onclick="filterBatch('Amber', this)">Amber</button>
+      <button class="tab-btn" onclick="filterBatch('Red', this)">Red</button>
+    </div>
+
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th><th>Site ID</th><th>Status</th><th>Score</th><th>State</th>
+            <th>Shifted (m)</th><th>Typology</th><th>Statutory Gate</th>
+            <th>Capex (₹L)</th><th>IRR 1.5x</th><th>CO₂ Offset (t/yr)</th>
+          </tr>
+        </thead>
+        <tbody id="batch-tbody">
+          <tr><td colspan="11" style="color:var(--muted);text-align:center;">Upload a CSV/Excel file to view ranked triage results.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+let currentReport = null;
+let map = null;
+let mapLayerGroup = null;
+let losChart = null;
+let batchData = null;
+let lastUploadedFile = null;
+let currentFilter = 'ALL';
+
+function switchTab(tab) {
+  document.getElementById('view-single').classList.toggle('hidden', tab !== 'single');
+  document.getElementById('view-batch').classList.toggle('hidden', tab !== 'batch');
+  document.getElementById('tab-single-btn').classList.toggle('active', tab === 'single');
+  document.getElementById('tab-batch-btn').classList.toggle('active', tab === 'batch');
+  if (tab === 'single' && map) setTimeout(() => map.invalidateSize(), 100);
+}
+
+function initMap(lat, lon) {
+  if (!map) {
+    map = L.map('map').setView([lat, lon], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    mapLayerGroup = L.layerGroup().addTo(map);
+  }
+}
+
+async function runSingleAnalysis() {
+  const siteId = document.getElementById('in-site-id').value.trim() || 'SITE-001';
+  const lat = parseFloat(document.getElementById('in-lat').value);
+  const lon = parseFloat(document.getElementById('in-lon').value);
+  const ring_radius_m = parseFloat(document.getElementById('in-ring').value) || 500;
+  const grid_points = parseInt(document.getElementById('in-grid').value, 10) || 25;
+
+  const btn = document.getElementById('btn-analyze');
+  const statusEl = document.getElementById('single-status');
+  btn.disabled = true;
+  statusEl.textContent = 'Running spatial R*Tree, 30m DEM LoS, ESG & financial engine...';
+
+  try {
+    const res = await fetch('/api/v1/feasibility', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ site_id: siteId, lat, lon, ring_radius_m, grid_points })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    currentReport = await res.json();
+    renderSingleReport(currentReport);
+    document.getElementById('btn-pdf').disabled = false;
+    statusEl.textContent = `Completed for ${siteId} (${currentReport.site_metrics.state})`;
+  } catch (err) {
+    statusEl.textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderSingleReport(r) {
+  const ent = r.enterprise_2030;
+  const ring = r.ring_optimizer;
+  const fin = r.financial_boq;
+  const bh = r.backhaul_los;
+
+  document.getElementById('k-typology').textContent = ent.typology.asset_typology;
+  document.getElementById('k-state').textContent = `${r.site_metrics.state} | Soil: ${r.site_metrics.fao_soil}`;
+  document.getElementById('k-shift').textContent = `${ring.deltas.meters_shifted} m`;
+  document.getElementById('k-saved').textContent = `Capex Saved: ₹${ring.deltas.capex_saved_lakh} L | Elev +${ring.deltas.elevation_gain_m}m`;
+  document.getElementById('k-irr').textContent = `${fin.irr_sensitivity['1.5x'].irr_10yr_pct}%`;
+  document.getElementById('k-capex').textContent = `Total Capex: ₹${fin.capex_boq_lakh.total_capex_lakh} L`;
+  document.getElementById('k-co2').textContent = `${ent.zero_diesel_esg.co2_offset_tons_per_year} t/yr`;
+  document.getElementById('k-solar').textContent = `${ent.zero_diesel_esg.recommended_solar_pv_kwp} kWp + ${ent.zero_diesel_esg.lifepo4_battery_kwh} kWh`;
+  document.getElementById('k-stat').textContent = ent.statutory_row_gate.overall_gate_status;
+  document.getElementById('k-beyond').textContent = `Edge ${ent.beyond_tenancy.micro_edge_compute.score}/100 | EV ${ent.beyond_tenancy.ev_charging_colocation.score}/100`;
+
+  // Map
+  const inPin = ring.input_pin;
+  const optPin = ring.recommended_pin;
+  initMap(inPin.lat, inPin.lon);
+  mapLayerGroup.clearLayers();
+  L.circle([inPin.lat, inPin.lon], { radius: ring.search_radius_m, color: '#38bdf8', fillOpacity: 0.06 }).addTo(mapLayerGroup);
+  ring.grid_points.forEach(pt => {
+    L.circleMarker([pt.lat, pt.lon], { radius: 3, color: '#94a3b8', fillOpacity: 0.6 }).addTo(mapLayerGroup);
+  });
+  L.circleMarker([inPin.lat, inPin.lon], { radius: 8, color: '#38bdf8', fillColor: '#38bdf8', fillOpacity: 0.9 })
+    .bindPopup(`Input Pin (${inPin.lat}, ${inPin.lon})<br>Elev: ${inPin.elevation_m}m | Slope: ${inPin.slope_pct}%`).addTo(mapLayerGroup);
+  L.circleMarker([optPin.lat, optPin.lon], { radius: 9, color: '#10b981', fillColor: '#10b981', fillOpacity: 0.95 })
+    .bindPopup(`Optimal Pin (${optPin.lat}, ${optPin.lon})<br>Elev: ${optPin.elevation_m}m | Slope: ${optPin.slope_pct}%`).addTo(mapLayerGroup);
+
+  bh.microwave_los_links.forEach(lnk => {
+    L.polyline([[optPin.lat, optPin.lon], [lnk.lat, lnk.lon]], { color: lnk.los_clear ? '#10b981' : '#ef4444', dashArray: '5,5', weight: 2 }).addTo(mapLayerGroup);
+    L.circleMarker([lnk.lat, lnk.lon], { radius: 5, color: '#f59e0b', fillOpacity: 0.9 })
+      .bindPopup(`Tower ${lnk.target_tower_id} (${lnk.operator}) - ${lnk.distance_m}m`).addTo(mapLayerGroup);
+  });
+  map.setView([optPin.lat, optPin.lon], 15);
+
+  // LoS dropdown
+  const sel = document.getElementById('los-link-select');
+  sel.innerHTML = '';
+  bh.microwave_los_links.forEach((lnk, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `Link ${idx + 1}: ${lnk.target_tower_id} (${lnk.operator}, ${lnk.distance_m}m)`;
+    sel.appendChild(opt);
+  });
+  renderLosChart();
+
+  // Readiness panel
+  const gatesHtml = Object.entries(ent.statutory_row_gate.gates).map(([k, v]) => {
+    const cls = v.status === 'CLEAR' ? 'b-green' : (v.status === 'WARNING' ? 'b-amber' : 'b-red');
+    return `<tr><td>${k}</td><td><span class="badge ${cls}">${v.status}</span></td><td>${v.nearest_m !== null ? v.nearest_m + ' m' : 'Clear'}</td><td>${v.feature_name || '—'}</td></tr>`;
+  }).join('');
+  document.getElementById('readiness-panel').innerHTML = `
+    <div style="margin-bottom:10px;">
+      <span class="badge b-blue">${ent.typology.asset_typology}</span>
+      <span class="badge b-green">Zero-Diesel: ${ent.zero_diesel_esg.annual_diesel_saved_liters} L/yr saved</span>
+      <span class="badge b-blue">Backhaul: ${bh.recommended_backhaul_mode}</span>
+    </div>
+    <p style="margin:6px 0 10px;color:#cbd5e1;">${ent.typology.rationale}</p>
+    <table><thead><tr><th>Statutory Gate</th><th>Status</th><th>Nearest</th><th>Feature</th></tr></thead><tbody>${gatesHtml}</tbody></table>
+  `;
+
+  renderBoqPanel(fin);
+}
+
+function renderLosChart() {
+  if (!currentReport) return;
+  const links = currentReport.backhaul_los.microwave_los_links;
+  const idx = parseInt(document.getElementById('los-link-select').value || '0', 10);
+  const badgesEl = document.getElementById('los-badges');
+  if (!links.length) {
+    badgesEl.innerHTML = '<span class="badge b-amber">No nearby towers for MW LoS</span>';
+    return;
+  }
+  const lnk = links[idx];
+  const bv = lnk.band_verdicts;
+  badgesEl.innerHTML = ['6_GHz', '15_GHz', '80_GHz_E_band'].map(k => {
+    const b = bv[k];
+    const cls = b.viable ? 'b-green' : (b.status.includes('BLOCKED') ? 'b-red' : 'b-amber');
+    return `<span class="badge ${cls}" style="margin-right:4px;">${k.replace('_E_band','')}: ${b.min_fresnel_clearance_pct}%</span>`;
+  }).join('');
+
+  const labels = lnk.elevation_profile.map(p => `${Math.round(p.distance_m)}m`);
+  const terrain = lnk.elevation_profile.map(p => p.effective_terrain_m);
+  const losLine = lnk.elevation_profile.map(p => p.los_line_m);
+  const fresnel = lnk.elevation_profile.map(p => p.fresnel_60_bottom_15ghz_m);
+
+  if (losChart) losChart.destroy();
+  losChart = new Chart(document.getElementById('los-chart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Effective Terrain + Earth Bulge (m)', data: terrain, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.18)', fill: true, tension: 0.2 },
+        { label: 'LoS Beam (m)', data: losLine, borderColor: '#38bdf8', borderDash: [4, 4], tension: 0 },
+        { label: '60% Fresnel 15GHz (m)', data: fresnel, borderColor: '#10b981', borderDash: [2, 2], tension: 0.1 }
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
+  });
+}
+
+function renderBoqPanel(fin) {
+  const c = fin.capex_boq_lakh;
+  const o = fin.opex_monthly_inr;
+  const irr = fin.irr_sensitivity;
+  document.getElementById('boq-panel').innerHTML = `
+    <table>
+      <thead><tr><th>Capex Item</th><th>₹ Lakh</th></tr></thead>
+      <tbody>
+        <tr><td>Civil &amp; Foundation</td><td><input class="boq-input" id="boq-civil" type="number" step="0.1" value="${c.civil_foundation_lakh}"></td></tr>
+        <tr><td>Tower Structure</td><td><input class="boq-input" id="boq-struct" type="number" step="0.1" value="${c.tower_structure_lakh}"></td></tr>
+        <tr><td>Solar PV + LiFePO4 Power</td><td><input class="boq-input" id="boq-power" type="number" step="0.1" value="${c.solar_lifepo4_power_lakh}"></td></tr>
+        <tr><td>Backhaul (FTTT / MW)</td><td><input class="boq-input" id="boq-bh" type="number" step="0.1" value="${c.backhaul_lakh}"></td></tr>
+        <tr><td><b>Total Capex</b></td><td><b>₹${c.total_capex_lakh} L</b> | Monthly Opex: <b>₹${o.total_monthly_opex_inr.toLocaleString()}</b></td></tr>
+      </tbody>
+    </table>
+    <div style="margin:10px 0;">
+      <button class="btn btn-secondary" onclick="recalcBoq()">Recalculate IRR</button>
+    </div>
+    <table>
+      <thead><tr><th>Tenancy</th><th>Monthly Rev</th><th>EBITDA/mo</th><th>10Y IRR</th><th>Payback</th></tr></thead>
+      <tbody>
+        ${['1.0x','1.5x','2.0x'].map(k => `<tr><td><b>${k}</b></td><td>₹${irr[k].monthly_revenue_inr.toLocaleString()}</td><td>₹${irr[k].monthly_ebitda_inr.toLocaleString()}</td><td><b>${irr[k].irr_10yr_pct}%</b></td><td>${irr[k].payback_years || '—'} yrs</td></tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function recalcBoq() {
+  if (!currentReport) return;
+  const payload = {
+    typology: currentReport.enterprise_2030.typology.asset_typology,
+    slope_pct: currentReport.ring_optimizer.recommended_pin.slope_pct,
+    soil_risk_multiplier: currentReport.ring_optimizer.deltas.soil_risk_multiplier,
+    solar_pv_kwp: currentReport.enterprise_2030.zero_diesel_esg.recommended_solar_pv_kwp,
+    battery_kwh: currentReport.enterprise_2030.zero_diesel_esg.lifepo4_battery_kwh,
+    fttt_capex_lakh: currentReport.backhaul_los.fiber_fttt.estimated_fttt_capex_lakh,
+    backhaul_mode: currentReport.backhaul_los.recommended_backhaul_mode,
+    beyond_tenancy_score: currentReport.enterprise_2030.beyond_tenancy.composite_beyond_tenancy_score,
+    overrides: {
+      civil_foundation_lakh: parseFloat(document.getElementById('boq-civil').value),
+      tower_structure_lakh: parseFloat(document.getElementById('boq-struct').value),
+      solar_lifepo4_power_lakh: parseFloat(document.getElementById('boq-power').value),
+      backhaul_lakh: parseFloat(document.getElementById('boq-bh').value)
+    }
+  };
+  const res = await fetch('/api/v1/financial-recalc', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+  });
+  const fin = await res.json();
+  currentReport.financial_boq = fin;
+  document.getElementById('k-irr').textContent = `${fin.irr_sensitivity['1.5x'].irr_10yr_pct}%`;
+  document.getElementById('k-capex').textContent = `Total Capex: ₹${fin.capex_boq_lakh.total_capex_lakh} L`;
+  renderBoqPanel(fin);
+}
+
+function downloadDossier(fmt) {
+  const siteId = document.getElementById('in-site-id').value.trim() || 'SITE-001';
+  const lat = document.getElementById('in-lat').value;
+  const lon = document.getElementById('in-lon').value;
+  window.open(`/api/v1/dossier/${encodeURIComponent(siteId)}?lat=${lat}&lon=${lon}&format=${fmt}`, '_blank');
+}
+
+// Batch RFP Triage
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleBatchFile(e.dataTransfer.files[0]);
+});
+
+async function handleBatchFile(file) {
+  if (!file) return;
+  lastUploadedFile = file;
+  const statusEl = document.getElementById('batch-status');
+  statusEl.textContent = `Processing ${file.name}...`;
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch('/api/v1/batch-triage/preview', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error(await res.text());
+    batchData = await res.json();
+    renderBatchResults();
+    document.getElementById('btn-export-xlsx').disabled = false;
+    statusEl.textContent = `Evaluated ${batchData.summary.total_rings} search rings from ${file.name}`;
+  } catch (err) {
+    statusEl.textContent = 'Batch error: ' + err.message;
+  }
+}
+
+function renderBatchResults() {
+  if (!batchData) return;
+  const s = batchData.summary;
+  document.getElementById('b-total').textContent = s.total_rings;
+  document.getElementById('b-green').textContent = s.green_count;
+  document.getElementById('b-amber').textContent = s.amber_count;
+  document.getElementById('b-red').textContent = s.red_count;
+  document.getElementById('b-irr').textContent = `${s.avg_irr_1_5x_pct}%`;
+  document.getElementById('b-capex').textContent = `₹${s.total_capex_crore} Cr`;
+
+  const rows = batchData.sites.filter(r => currentFilter === 'ALL' || r.status === currentFilter);
+  const tbody = document.getElementById('batch-tbody');
+  tbody.innerHTML = rows.map((r, idx) => {
+    const cls = r.status === 'Green' ? 'b-green' : (r.status === 'Amber' ? 'b-amber' : 'b-red');
+    return `<tr>
+      <td>${idx + 1}</td><td><b>${r.site_id}</b></td><td><span class="badge ${cls}">${r.status}</span></td>
+      <td>${r.rank_score}</td><td>${r.state}</td><td>${r.meters_shifted}</td>
+      <td>${r.typology}</td><td>${r.statutory_gate}</td>
+      <td>₹${r.total_capex_lakh}</td><td><b>${r.irr_1_5x_pct}%</b></td><td>${r.co2_offset_tpy}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterBatch(status, btn) {
+  currentFilter = status;
+  btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBatchResults();
+}
+
+async function exportBatchXlsx() {
+  if (!lastUploadedFile) return;
+  const fd = new FormData();
+  fd.append('file', lastUploadedFile);
+  const res = await fetch('/api/v1/batch-triage', { method: 'POST', body: fd });
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'tower_batch_triage_ranked.xlsx'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadSampleCsv() {
+  const csv = [
+    'site_id,lat,lon,radius_m',
+    'RAJ-KOTA-01,24.9277,75.8986,500',
+    'RAJ-JPR-02,26.9124,75.7873,500',
+    'MAH-PUN-03,18.5204,73.8567,500',
+    'KAR-BLR-04,12.9716,77.5946,500',
+    'UP-LKO-05,26.8467,80.9462,500',
+    'GUJ-AMD-06,23.0225,72.5714,500',
+    'TN-CHN-07,13.0827,80.2707,500',
+    'MP-BPL-08,23.2599,77.4126,500',
+    'DEL-NCR-09,28.6139,77.2090,500',
+    'WB-KOL-10,22.5726,88.3639,500'
+  ].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'sample_10_search_rings.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
