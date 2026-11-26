@@ -158,3 +158,44 @@ summary { color: #dce3d8; cursor: pointer; }
 .cc-fin-note{padding-top:10px;border-top:1px solid var(--border);color:var(--muted);font-size:10px;line-height:1.5}.cc-empty{color:var(--muted);font-size:11px;padding:12px 0}
 @media(max-width:1100px){.cc-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.command-center{padding:14px}.cc-heading{align-items:flex-start;flex-direction:column}.cc-heading-actions{flex-wrap:wrap}.cc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-main-grid{grid-template-columns:1fr}.cc-spatial-body{grid-template-columns:1fr}.cc-spatial-glyph{min-height:100px}.cc-sitebar{gap:12px}}
+
+/* Workspace-specific finish: spatial, finance, engineering, evidence and screening */
+.stage-scroll{scrollbar-gutter:stable}
+.panel{padding:16px 17px;margin-bottom:12px}
+.panel-head{padding-bottom:11px;margin-bottom:13px;border-bottom:1px solid var(--border)}
+.panel-title{font-size:13px;font-weight:600;letter-spacing:-.01em;color:#e7ece4}
+.cfo-pills{display:flex;flex-wrap:wrap;gap:6px;padding:4px;background:#151b17;border:1px solid var(--border);border-radius:6px}
+.cfo-pill,.seg-btn{padding:7px 11px;border:1px solid transparent;border-radius:4px;color:#aeb8aa;background:transparent;font-size:11px}
+.cfo-pill.active,.seg-btn.active{color:#e8eee5;background:#2b382d;border-color:rgba(130,168,139,.35)}
+.metric-grid,.grid-equal{gap:12px}
+.grid-equal>.panel{min-width:0}
+.table-wrap{border:1px solid var(--border);border-radius:6px;overflow:auto}
+.table-wrap table{min-width:520px}
+.status-line{color:var(--muted);font:10px var(--font-mono)}
+.badge{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid var(--border);font-size:9px;font-weight:650}
+.badge-PASS,.badge-APPROVED,.badge-CLEAR{color:#a5c9aa;background:rgba(130,168,139,.12);border-color:rgba(130,168,139,.3)}
+.badge-HOLD,.badge-CONDITIONAL,.badge-WARNING{color:#e0b775;background:rgba(213,164,95,.12);border-color:rgba(213,164,95,.3)}
+.badge-FAIL,.badge-CRITICAL,.badge-REJECTED{color:#e18a80;background:rgba(212,119,109,.12);border-color:rgba(212,119,109,.3)}
+.spatial-split{background:#111713}
+.map-pane{background:#18201b;border-right:1px solid var(--border)}
+.map-toolbar{background:rgba(24,31,26,.96);border-bottom:1px solid var(--border);padding:9px 11px;gap:7px}
+.map-legend-bar{background:rgba(24,31,26,.94);border:1px solid var(--border);border-radius:5px}
+.inspector{background:#1a211c;border-left:1px solid var(--border)}
+.inspector-section{border-color:var(--border)}
+.dropzone{padding:28px 20px;text-align:center;background:#1a211c;border:1px dashed rgba(160,176,158,.4);border-radius:7px}
+#batchTable{font-size:11px}
+#batchTable tbody tr{cursor:pointer}
+#evidenceAccordion details{background:#1a211c;border:1px solid var(--border);border-radius:5px;padding:9px 11px;margin:7px 0}
+#evidenceAccordion summary{font-size:11px;font-weight:600}
+#evidenceAccordion pre{max-height:260px;overflow:auto;padding:10px;background:#111713;border-radius:4px;color:#bdc8b9;font:10px/1.55 var(--font-mono)}
+#soaList{display:grid;gap:7px}
+#soaList>div{background:#1a211c;border:1px solid var(--border);border-radius:5px;padding:10px}
+#map{background:#202a23}
+.maplibregl-popup-content{background:#202a23;color:#e8eee5;border:1px solid var(--border-strong);border-radius:6px;box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.maplibregl-popup-tip{border-top-color:#202a23!important;border-bottom-color:#202a23!important}
+.modal{background:rgba(5,9,6,.72);backdrop-filter:blur(5px)}
+.modal-content{background:#1c241e;border:1px solid var(--border-strong);border-radius:8px}
+.btn-cyan{background:#30483f!important;color:#e2eee5!important;border:1px solid rgba(130,168,139,.42)!important}
+.btn-ghost{background:#202820;color:#c4cec1;border:1px solid var(--border-strong)}
+.btn-ghost:hover{background:#29352b;color:#f0f3ed}
+@media(max-width:900px){.spatial-split{grid-template-columns:1fr!important}.map-pane{min-height:52vh}.inspector{border-left:0;border-top:1px solid var(--border)}}
