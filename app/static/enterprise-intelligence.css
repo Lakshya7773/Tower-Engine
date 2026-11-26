@@ -1,0 +1,128 @@
+/* Tower Engine — Hybrid Enterprise Intelligence UI
+   Layered visual redesign. Existing markup, API contracts and JS behavior remain intact. */
+:root {
+  --bg: #111412;
+  --rail: #171b18;
+  --surface: #1b211d;
+  --surface-2: #222a24;
+  --surface-3: #29332b;
+  --border: rgba(188, 198, 179, .13);
+  --border-strong: rgba(188, 198, 179, .24);
+  --text: #ecefe8;
+  --text-dim: #c4cbbf;
+  --muted: #899487;
+  --emerald: #82a88b;
+  --cyan: #83aaa5;
+  --amber: #d5a45f;
+  --rose: #d4776d;
+  --font-ui: "IBM Plex Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --radius: 7px;
+  --radius-sm: 5px;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--text); }
+body { letter-spacing: .005em; }
+::selection { background: rgba(130,168,139,.28); color: #fff; }
+::-webkit-scrollbar-track { background: #141815; }
+::-webkit-scrollbar-thumb { background: #465148; }
+::-webkit-scrollbar-thumb:hover { background: #657568; }
+button, input, select, textarea { font: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible {
+  outline-color: var(--amber); outline-offset: 3px;
+}
+/* Shell: quieter navigation, more room for the actual work. */
+.app-shell { grid-template-columns: 218px minmax(0,1fr); background: var(--bg); }
+.rail {
+  background: #171c19; border-right: 1px solid var(--border);
+  padding: 16px 11px 12px; gap: 14px;
+}
+.brand { padding: 4px 4px 16px; margin-bottom: 4px; border-color: var(--border); }
+.brand-icon { background: rgba(130,168,139,.12); border-color: rgba(130,168,139,.32); color: var(--emerald); }
+.brand h1 { font-size: 14px; letter-spacing: -.015em; }
+.brand-sub { color: #899487; letter-spacing: .04em; }
+.rail-group-label { text-transform: uppercase; letter-spacing: .11em; font-size: 9px; font-weight: 700; color: #849084; padding: 10px 9px 5px; }
+.rail-nav { gap: 4px; }
+.rail-btn {
+  border-radius: 5px; padding: 9px 10px; min-height: 36px; gap: 10px;
+  color: #b9c2b7; font-size: 12px; font-weight: 500;
+}
+.rail-btn:hover { background: rgba(255,255,255,.045); color: #f1f3ed; }
+.rail-btn.active {
+  color: #e4eee3; background: rgba(130,168,139,.13);
+  border-color: rgba(130,168,139,.3); box-shadow: inset 2px 0 0 var(--emerald);
+}
+.rail-btn svg { color: #9aa89a; }
+.rail-exports { border-color: var(--border); gap: 6px; }
+.rail-collapse-btn { border-radius: 5px; }
+/* Main work area and shared surfaces. */
+.workspace { background: var(--bg); min-width: 0; }
+.workspace-header, .topbar, .command-bar, .context-bar {
+  background: rgba(25,31,27,.96); border-color: var(--border);
+}
+.panel, .card, .kpi-card, .metric-card, .section-card, .inspector-card,
+.chart-card, .table-card, .workspace-panel, .module-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 7px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.018);
+}
+h1,h2,h3,h4 { color: #f0f2ec; letter-spacing: -.018em; }
+h2 { font-weight: 600; }
+p, .subtitle, .helper-text { color: var(--text-dim); }
+small, .muted, .text-muted { color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--border); }
+/* Inputs: restrained, tactile, legible. */
+input, select, textarea, .input, .form-control {
+  background: #151b17 !important; border: 1px solid var(--border-strong) !important;
+  color: var(--text) !important; border-radius: 5px !important; box-shadow: none !important;
+}
+input::placeholder, textarea::placeholder { color: #788477 !important; }
+input:hover, select:hover, textarea:hover { border-color: rgba(213,164,95,.48) !important; }
+button, .btn, .button {
+  border-radius: 5px; box-shadow: none; transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+button:not(.rail-btn):not(.maplibregl-ctrl button), .btn, .button {
+  border-color: var(--border-strong);
+}
+button:hover, .btn:hover, .button:hover { filter: brightness(1.08); }
+/* Semantic accents — green = cleared, amber = conditional, red = critical. */
+.badge, .chip, .tag { border-radius: 4px; letter-spacing: .025em; }
+.badge-green, .badge-pass, .status-pass { color: #a5c9aa; background: rgba(130,168,139,.12); border-color: rgba(130,168,139,.34); }
+.badge-amber, .badge-conditional, .status-warning { color: #e0b775; background: rgba(213,164,95,.12); border-color: rgba(213,164,95,.34); }
+.badge-red, .badge-critical, .status-critical { color: #e18a80; background: rgba(212,119,109,.12); border-color: rgba(212,119,109,.34); }
+/* Tables: Bloomberg-like precision without overwhelming density. */
+table { border-collapse: separate; border-spacing: 0; width: 100%; }
+th { color: #aab6a7; background: #222a24; font-weight: 600; font-size: 11px; letter-spacing: .035em; }
+td { color: #d7ddd3; border-color: var(--border) !important; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: rgba(130,168,139,.045); }
+.num, .num-cell, .mono { font-variant-numeric: tabular-nums; }
+/* Charts and map containers retain their dimensions and interaction surfaces. */
+canvas { max-width: 100%; }
+.maplibregl-map { background: #202822; }
+.maplibregl-ctrl-group { background: #202821; border: 1px solid var(--border-strong); }
+.maplibregl-ctrl-group button { background-color: transparent; }
+.maplibregl-ctrl-group button + button { border-top-color: var(--border); }
+.maplibregl-ctrl button .maplibregl-ctrl-icon { filter: invert(.82) sepia(.08); }
+/* Drop zones and evidence lists. */
+#batchDropzone, .dropzone, .upload-zone {
+  background: rgba(255,255,255,.018); border: 1px dashed rgba(160,176,158,.34); border-radius: 7px;
+}
+#batchDropzone.dragover, .dropzone.dragover { background: rgba(130,168,139,.08); border-color: var(--emerald); }
+details, summary { border-color: var(--border); }
+summary { color: #dce3d8; cursor: pointer; }
+/* Reduce ornamental chrome; preserve visible hierarchy. */
+* { scrollbar-width: thin; scrollbar-color: #465148 #141815; }
+@media (max-width: 1024px) {
+  .app-shell, .app-shell.rail-collapsed { grid-template-columns: 1fr; }
+  .rail { position: relative; height: auto; max-height: none; }
+}
+@media (max-width: 720px) {
+  html, body { font-size: 13px; }
+  .rail { padding: 10px; }
+  .rail-nav { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .rail-btn { flex: 0 0 auto; }
+  th, td { padding: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
